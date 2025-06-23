@@ -1,0 +1,367 @@
+{% extends "manager_app/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard - Smart House Manager{% endblock %}
+
+{% block content %}
+<!-- Messages -->
+{% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+                <button type="button" class="close-alert" onclick="this.parentElement.style.display='none'">&times;</button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<section class="welcome-banner">
+    <h2>Welcome, {% if user.is_authenticated %}{{ user.username }}{% else %}Guest{% endif %}!</h2>
+    <p>Here's a snapshot of your home's status. Stay organized and efficient.</p>
+</section>
+
+<div class="dashboard-3x2-grid">
+    <!-- Stock Inventory Card -->
+    <div class="card" id="stock-inventory-card">
+        <div class="card-header">
+            <h3><i class="fas fa-box-open"></i> Stock Inventory</h3>
+            <button class="btn-primary" onclick="openModal('addStockModal')"><i class="fas fa-plus"></i> Add Stock</button>
+        </div>
+        <div class="card-content">
+            <div class="stock-filters">
+                <input type="text" id="stockSearch" placeholder="Search stock...">
+                <select id="stockSort">
+                    <option value="name_asc">Sort by Name (A-Z)</option>
+                    <option value="name_desc">Sort by Name (Z-A)</option>
+                    <option value="qty_low">Sort by Qty (Low to High)</option>
+                    <option value="qty_high">Sort by Qty (High to Low)</option>
+                    <option value="expiry_soon">Sort by Expiry (Soonest)</option>
+                </select>
+            </div>
+            <ul id="stockList">
+                {% if inventory_items %}
+                    {% for item in inventory_items %}
+                        <li>{{ item.item_name }} - Qty: {{ item.quantity }} ({{ item.category }})</li>
+                    {% endfor %}
+                {% else %}
+                    <li>No inventory items found.</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Expense Logger Card -->
+    <div class="card" id="expense-logger-card">
+        <div class="card-header">
+            <h3><i class="fas fa-money-bill-wave"></i> Expense Tracker</h3>
+            <button class="btn-primary" onclick="openModal('addExpenseModal')"><i class="fas fa-plus"></i> Add Expense</button>
+        </div>
+        <div class="card-content">
+            <p>Total Expenses Today: <strong id="totalExpensesToday">${{ total_expenses_today|default:"0.00" }}</strong></p>
+            <ul id="expenseList">
+                {% if recent_expenses %}
+                    {% for expense in recent_expenses %}
+                        <li>{{ expense.title }} - ${{ expense.amount }} ({{ expense.date }})</li>
+                    {% endfor %}
+                {% else %}
+                    <li>No expenses recorded.</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Budget Overview Card -->
+    <div class="card" id="budget-overview-card">
+        <div class="card-header">
+            <h3><i class="fas fa-chart-pie"></i> Budget Overview</h3>
+        </div>
+        <div class="card-content">
+            <div class="chart-placeholder" id="budgetChartPlaceholder">
+                <p>Chart loading...</p>
+            </div>
+            <div class="budget-details">
+                <p>Total Budget: <span id="totalBudget">${{ total_budget|default:"0.00" }}</span></p>
+                <p>Expenses: <span id="monthlyExpenses">${{ monthly_expenses|default:"0.00" }}</span></p>
+                <p>Remaining: <span id="remaining">${{ remaining_budget|default:"0.00" }}</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shopping List Card -->
+    <div class="card" id="stock-forecast-card">
+        <div class="card-header">
+            <h3><i class="fas fa-lightbulb"></i> Shopping List</h3>
+        </div>
+        <div class="card-content">
+            <ul id="lowStockList">
+                {% if low_stock_items %}
+                    {% for item in low_stock_items %}
+                        <li>{{ item.item_name }} (Only {{ item.quantity }} left)</li>
+                    {% endfor %}
+                {% else %}
+                    <li>All items are well stocked!</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Smart Suggestions Card -->
+    <div class="card" id="smart-suggestions-card">
+        <div class="card-header">
+            <h3><i class="fas fa-magic"></i> Smart Suggestions</h3>
+        </div>
+        <div class="card-content">
+            <ul id="suggestionList">
+                <li>Track your monthly expenses to stay within budget</li>
+                <li>Update inventory regularly to avoid shortages</li>
+                <li>Set reminders for recurring expenses</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Calendar Card -->
+    <div class="card" id="calendar-card">
+        <div class="card-header">
+            <h3><i class="fas fa-calendar-check"></i> Calendar & Reminders</h3>
+            <button class="btn-primary" onclick="openModal('addEventModal')"><i class="fas fa-plus"></i> Add Event</button>
+        </div>
+        <div class="card-content">
+            <div id="calendarPlaceholder">
+                {% if upcoming_events %}
+                    {% for event in upcoming_events %}
+                        <div><strong>{{ event.title }}</strong> - {{ event.date }} {{ event.time|default:"" }}<br><span>{{ event.description }}</span></div>
+                    {% endfor %}
+                {% else %}
+                    <p>No upcoming events.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Stock Modal -->
+<div id="addStockModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h4>Add New Stock Item</h4>
+        <form method="POST" action="">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="add_stock">
+            <label for="item_name">Item Name:</label>
+            <input type="text" name="item_name" id="item_name" required>
+            <label for="quantity">Quantity:</label>
+            <input type="number" name="quantity" id="quantity" min="0" required>
+            <label for="category">Category:</label>
+            <input type="text" name="category" id="category">
+            <label for="description">Description:</label>
+            <textarea name="description" id="description"></textarea>
+            <button type="submit" class="btn-primary">Add Stock</button>
+        </form>
+    </div>
+</div>
+
+<!-- Add Expense Modal -->
+<div id="addExpenseModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h4>Add New Expense</h4>
+        <form method="POST" action="">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="add_expense">
+            <label for="title">Title:</label>
+            <input type="text" name="title" id="title" required>
+            <label for="amount">Amount:</label>
+            <input type="number" name="amount" id="amount" step="0.01" min="0" required>
+            <label for="expense_category">Category:</label>
+            <select name="category" id="expense_category" required>
+                <option value="">Select Category</option>
+                <option value="Food">Food</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Transportation">Transportation</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Other">Other</option>
+            </select>
+            <label for="expense_date">Date:</label>
+            <input type="date" name="date" id="expense_date" required>
+            <label for="expense_description">Description:</label>
+            <textarea name="description" id="expense_description"></textarea>
+            <button type="submit" class="btn-primary">Add Expense</button>
+        </form>
+    </div>
+</div>
+
+<!-- Add Event Modal -->
+<div id="addEventModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h4>Add New Event</h4>
+        <form method="POST" action="">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="add_event">
+            <label for="eventTitle">Title:</label>
+            <input type="text" name="title" id="eventTitle" required>
+            <label for="eventDate">Date:</label>
+            <input type="date" name="date" id="eventDate" required>
+            <label for="eventTime">Time:</label>
+            <input type="time" name="time" id="eventTime">
+            <label for="eventDescription">Description:</label>
+            <textarea name="description" id="eventDescription"></textarea>
+            <button type="submit" class="btn-primary">Add Event</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .dashboard-3x2-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 2rem;
+    }
+    @media (max-width: 992px) {
+        .dashboard-3x2-grid {
+            grid-template-columns: 1fr;
+            grid-template-rows: none;
+        }
+    }
+    .card-content .stock-filters {
+        margin-bottom: 1rem;
+    }
+    .budget-details {
+        margin-top: 1rem;
+        text-align: center;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 50%;
+        border-radius: 8px;
+    }
+    .close-btn {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .close-btn:hover {
+        color: black;
+    }
+    .modal form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .modal label {
+        font-weight: bold;
+    }
+    .modal input, .modal select, .modal textarea {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    /* Messages styling */
+    .messages {
+        margin: 20px 0;
+    }
+    .alert {
+        padding: 12px 20px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        position: relative;
+    }
+    .alert-success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+    .alert-error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+    }
+    .alert-warning {
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+        color: #856404;
+    }
+    .alert-info {
+        background-color: #cce7ff;
+        border-color: #b3d7ff;
+        color: #0c5460;
+    }
+    .close-alert {
+        position: absolute;
+        top: 8px;
+        right: 15px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: inherit;
+    }
+    .close-alert:hover {
+        opacity: 0.7;
+    }
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Modal functionality
+function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Close modal when clicking the X button
+    document.querySelectorAll('.close-btn').forEach(function(closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            this.closest('.modal').style.display = 'none';
+        });
+    });
+    
+    // Close modal when clicking outside of it
+    document.querySelectorAll('.modal').forEach(function(modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+    });
+    
+    // Auto-hide messages after 5 seconds
+    setTimeout(function() {
+        document.querySelectorAll('.alert').forEach(function(alert) {
+            alert.style.transition = 'opacity 0.5s';
+            alert.style.opacity = '0';
+            setTimeout(function() {
+                alert.style.display = 'none';
+            }, 500);
+        });
+    }, 5000);
+});
+</script>
+{% endblock %}

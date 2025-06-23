@@ -1,0 +1,105 @@
+{% extends "manager_app/base.html" %}
+{% load static %}
+
+{% block title %}Login - Smart House Manager{% endblock %}
+
+{% block extra_head %}
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: var(--background-color);
+    }
+    .login-container {
+        width: 100%;
+        max-width: 420px;
+        padding: 2rem;
+    }
+    .login-card {
+        background-color: var(--card-background);
+        padding: 2.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: 1px solid var(--border-color);
+        text-align: center;
+    }
+    .login-card h2 {
+        color: var(--primary-color);
+        margin-bottom: 2rem;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+        text-align: left;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        box-sizing: border-box;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.2);
+    }
+    .login-btn {
+        width: 100%;
+        padding: 0.85rem;
+        border: none;
+        border-radius: var(--border-radius);
+        background-color: var(--primary-color);
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .login-btn:hover {
+        background-color: var(--hover-primary-color);
+        transform: translateY(-2px);
+    }
+    .error-message {
+        color: var(--danger-color);
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <h2>Login</h2>
+        {% if form.errors %}
+            <p class="error-message">Your username and password didn't match. Please try again.</p>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_username">Username:</label>
+                {{ form.username }}
+            </div>
+            <div class="form-group">
+                <label for="id_password">Password:</label>
+                {{ form.password }}
+            </div>
+            <button type="submit" class="btn-primary login-btn">Login</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}{% endblock %}
+
+{% block extra_scripts %}{% endblock %}

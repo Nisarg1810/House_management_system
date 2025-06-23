@@ -1,0 +1,158 @@
+{% extends "manager_app/base.html" %}
+{% load static %}
+
+{% block title %}Calendar - Smart House Manager{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <h2><i class="fas fa-calendar-alt"></i> Calendar & Reminders</h2>
+    <p>Organize your schedule, set reminders, and never miss an important date.</p>
+</header>
+
+<div class="calendar-grid">
+    <!-- Left Column: Full Calendar View -->
+    <div class="card calendar-container">
+        <div class="card-header">
+            <h3>Monthly View</h3>
+             <button class="btn-primary" onclick="alert('Add event/reminder functionality to be implemented!')"><i class="fas fa-plus"></i> Add Event</button>
+        </div>
+        <div class="card-content">
+            <div id="calendar">
+                <!-- A full, interactive calendar will be rendered here. -->
+                <p style="text-align:center; padding: 4rem 0;">Full calendar plugin (e.g., FullCalendar.io) would be integrated here.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Upcoming Events -->
+    <div class="card event-list-container">
+        <div class="card-header">
+            <h3>Upcoming Events</h3>
+        </div>
+        <div class="card-content">
+            <ul class="event-list">
+                <li class="event-item">
+                    <div class="event-date">
+                        <span>AUG</span>
+                        <strong>15</strong>
+                    </div>
+                    <div class="event-details">
+                        <h4>Dentist Appointment</h4>
+                        <p>10:00 AM - Dr. Smith</p>
+                    </div>
+                </li>
+                <li class="event-item">
+                    <div class="event-date">
+                        <span>AUG</span>
+                        <strong>21</strong>
+                    </div>
+                    <div class="event-details">
+                        <h4>Pay Utility Bill</h4>
+                        <p>Due today</p>
+                    </div>
+                </li>
+                 <li class="event-item">
+                    <div class="event-date">
+                        <span>SEP</span>
+                        <strong>05</strong>
+                    </div>
+                    <div class="event-details">
+                        <h4>Team Project Deadline</h4>
+                        <p>Submit final report</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<!-- In a real implementation, you would include a library like FullCalendar -->
+<!-- <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet" /> -->
+<style>
+    .page-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .page-header h2 {
+        margin: 0;
+        font-size: 2.2rem;
+    }
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+    @media (max-width: 992px) {
+        .calendar-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    .calendar-container .card-content {
+        padding: 0;
+    }
+    #calendar {
+        padding: 1.5rem; /* Padding inside for the placeholder */
+    }
+    .event-list {
+        list-style: none;
+        padding: 0;
+    }
+    .event-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .event-item:last-child {
+        border-bottom: none;
+    }
+    .event-date {
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: var(--border-radius);
+        text-align: center;
+        padding: 0.75rem;
+        min-width: 60px;
+    }
+    .event-date span {
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: block;
+    }
+    .event-date strong {
+        font-size: 1.5rem;
+        line-height: 1.2;
+    }
+    .event-details h4 {
+        margin: 0 0 0.25rem 0;
+        font-size: 1.1rem;
+    }
+    .event-details p {
+        margin: 0;
+        color: #6c757d;
+    }
+    body.dark-mode .event-details p {
+        color: #a0aec0;
+    }
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script> -->
+<!-- <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth'
+    });
+    calendar.render();
+  });
+</script> -->
+{% endblock %}

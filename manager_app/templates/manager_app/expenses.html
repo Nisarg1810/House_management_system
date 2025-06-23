@@ -1,0 +1,158 @@
+{% extends "manager_app/base.html" %}
+{% load static %}
+
+{% block title %}Expenses - Smart House Manager{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <h2><i class="fas fa-receipt"></i> Expense Tracking</h2>
+    <p>Monitor your spending, categorize expenses, and gain insights into your financial habits.</p>
+</header>
+
+<div class="expenses-grid">
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+        <div class="card summary-card">
+            <h4>Total Spent (Month)</h4>
+            <p>$1,234.56</p>
+        </div>
+        <div class="card summary-card">
+            <h4>Highest Category</h4>
+            <p>Groceries</p>
+        </div>
+        <div class="card summary-card">
+            <h4>Transactions (Month)</h4>
+            <p>42</p>
+        </div>
+    </div>
+
+    <!-- Full Expense List -->
+    <div class="card">
+        <div class="card-header">
+            <h3>All Transactions</h3>
+            <div class="header-actions">
+                <input type="date" id="expenseDateFilter">
+                <select id="expenseCategoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="groceries">Groceries</option>
+                    <option value="utilities">Utilities</option>
+                    <option value="repairs">Repairs</option>
+                    <option value="transport">Transport</option>
+                    <option value="entertainment">Entertainment</option>
+                    <option value="other">Other</option>
+                </select>
+                <button class="btn-primary" onclick="openModal('addExpenseModal')"><i class="fas fa-plus"></i> Log Expense</button>
+            </div>
+        </div>
+        <div class="card-content">
+            <table class="expense-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="fullExpenseList">
+                    <!-- Example Row -->
+                    <tr>
+                        <td>2023-08-05</td>
+                        <td>Weekly Groceries</td>
+                        <td>Groceries</td>
+                        <td class="amount">-$150.25</td>
+                        <td><button class="btn-small btn-edit"><i class="fas fa-edit"></i></button> <button class="btn-small btn-delete"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                    <!-- More rows here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .page-header h2 {
+        margin: 0;
+        font-size: 2.2rem;
+    }
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .summary-card {
+        text-align: center;
+        padding: 1.5rem;
+    }
+    .summary-card h4 {
+        margin: 0 0 0.5rem 0;
+        color: var(--secondary-color);
+    }
+    .summary-card p {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 600;
+    }
+    .card .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    .header-actions input, .header-actions select {
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+    }
+    .expense-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+    .expense-table th, .expense-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .expense-table th {
+        font-weight: 600;
+        color: var(--secondary-color);
+    }
+    .expense-table tbody tr:hover {
+        background-color: var(--background-color);
+    }
+    body.dark-mode .expense-table tbody tr:hover {
+        background-color: #3c4a5f;
+    }
+    .expense-table .amount {
+        font-weight: 600;
+        color: var(--danger-color);
+    }
+    .btn-small {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    .btn-edit { background-color: var(--secondary-color); color: white; }
+    .btn-delete { background-color: var(--danger-color); color: white; }
+</style>
+{% endblock %}

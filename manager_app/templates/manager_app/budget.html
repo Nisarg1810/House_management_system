@@ -1,0 +1,130 @@
+{% extends "manager_app/base.html" %}
+{% load static %}
+
+{% block title %}Budget - Smart House Manager{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <h2><i class="fas fa-wallet"></i> Budget Management</h2>
+    <p>Track your income, expenses, and savings to stay on top of your finances.</p>
+</header>
+
+<div class="budget-grid">
+    <!-- Left Column: Budget Overview & Chart -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Budget Overview</h3>
+        </div>
+        <div class="card-content">
+            <div class="budget-summary">
+                <div class="summary-item">
+                    <h4>Total Income</h4>
+                    <p id="totalIncomeDisplay">$5,000.00</p>
+                </div>
+                <div class="summary-item">
+                    <h4>Total Expenses</h4>
+                    <p id="totalExpensesDisplay">$2,500.00</p>
+                </div>
+                <div class="summary-item">
+                    <h4>Remaining</h4>
+                    <p id="remainingBalanceDisplay">$2,500.00</p>
+                </div>
+            </div>
+            <div class="chart-placeholder" id="budgetDistributionChart">
+                <!-- Chart.js will render here -->
+                <p>Chart loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Transactions & Actions -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Recent Transactions</h3>
+            <button class="btn-primary" onclick="openModal('addExpenseModal')"><i class="fas fa-plus"></i> Add Expense</button>
+        </div>
+        <div class="card-content">
+            <ul class="transaction-list" id="fullExpenseList">
+                <li>
+                    <span>Groceries at Local Mart</span>
+                    <span class="amount expense">-$75.50</span>
+                </li>
+                <li>
+                    <span>Monthly Salary</span>
+                    <span class="amount income">+$5,000.00</span>
+                </li>
+                 <li>
+                    <span>Utility Bill</span>
+                    <span class="amount expense">-$120.00</span>
+                </li>
+                <!-- More transactions here -->
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .page-header h2 {
+        margin: 0;
+        font-size: 2.2rem;
+    }
+    .budget-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 2rem;
+    }
+    @media (max-width: 992px) {
+        .budget-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    .budget-summary {
+        display: flex;
+        justify-content: space-around;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .summary-item h4 {
+        margin-bottom: 0.5rem;
+        color: var(--secondary-color);
+        font-size: 1rem;
+    }
+    .summary-item p {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+    }
+    .transaction-list {
+        list-style: none;
+        padding: 0;
+    }
+    .transaction-list li {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .transaction-list li:last-child {
+        border-bottom: none;
+    }
+    .transaction-list .amount {
+        font-weight: 600;
+    }
+    .transaction-list .amount.income {
+        color: var(--success-color);
+    }
+    .transaction-list .amount.expense {
+        color: var(--danger-color);
+    }
+</style>
+{% endblock %}
